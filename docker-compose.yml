@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: asyncpay_postgres
+    environment:
+      POSTGRES_USER: gateway_user
+      POSTGRES_PASSWORD: gateway_pass
+      POSTGRES_DB: payment_gateway
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gateway_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: asyncpay_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: asyncpay_api
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.worker
+    container_name: asyncpay_worker
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_started
+
+  dashboard:
+    image: node:18-alpine
+    container_name: asyncpay_dashboard
+    working_dir: /app
+    volumes:
+      - ./dashboard:/app
+    command: npm run dev
+    ports:
+      - "3000:3000"
+
+  checkout:
+    image: node:18-alpine
+    container_name: asyncpay_checkout
+    working_dir: /app
+    volumes:
+      - ./checkout:/app
+    command: npm run dev
+    ports:
+      - "3001:3001"
+
+volumes:
+  pg_data:
