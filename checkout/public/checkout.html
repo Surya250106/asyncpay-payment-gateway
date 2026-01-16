@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AsyncPay Checkout</title>
+  <meta charset="utf-8" />
+</head>
+<body>
+  <h3>AsyncPay Checkout</h3>
+
+  <button id="success">Simulate Success</button>
+  <button id="fail">Simulate Failure</button>
+
+  <script>
+    document.getElementById("success").onclick = function () {
+      window.parent.postMessage({
+        type: "payment_success",
+        data: { paymentId: "pay_demo_success" }
+      }, "*");
+    };
+
+    document.getElementById("fail").onclick = function () {
+      window.parent.postMessage({
+        type: "payment_failed",
+        data: { error: "Payment failed" }
+      }, "*");
+    };
+  </script>
+</body>
+</html>

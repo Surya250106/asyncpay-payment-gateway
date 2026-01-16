@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AsyncPay API Docs</title>
+</head>
+<body data-test-id="api-docs">
+
+<h3>Create Payment</h3>
+<pre data-test-id="code-snippet-create-order">
+curl -X POST http://localhost:8000/api/v1/payments \
+-H "X-Api-Key: key_test_abc123" \
+-H "X-Api-Secret: secret_test_xyz789" \
+-H "Content-Type: application/json" \
+-d '{"order_id":"order_123","amount":50000,"currency":"INR","method":"upi","vpa":"user@upi"}'
+</pre>
+
+<h3>SDK Integration</h3>
+<pre data-test-id="code-snippet-sdk">
+&lt;script src="http://localhost:3001/checkout.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+const checkout = new PaymentGateway({
+  key: "key_test_abc123",
+  orderId: "order_123"
+});
+checkout.open();
+&lt;/script&gt;
+</pre>
+
+<h3>Webhook Verification</h3>
+<pre data-test-id="code-snippet-webhook">
+crypto.createHmac("sha256", secret)
+.update(JSON.stringify(payload))
+.digest("hex")
+</pre>
+
+</body>
+</html>
